@@ -9,11 +9,14 @@ class HebbianNetwork:
 
     def train(self, inputs, outputs):
         for i in range(len(inputs)):
-            input_pixels_vector = inputs[i]
+            input_pixel_vector = inputs[i]
             output_letter_vector = outputs[i]
+            if i < 4:
+                print(input_pixel_vector)
+                print(output_letter_vector)
 
             # Update weights
-            self.weights += self.learning_rate * np.outer(input_pixels_vector, output_letter_vector)
+            self.weights += self.learning_rate * np.outer(input_pixel_vector, output_letter_vector)
 
         # Add weight decay to prevent overfitting
         self.weights *= 0.99  # Slightly decay weights
@@ -22,12 +25,9 @@ class HebbianNetwork:
         norms = np.linalg.norm(self.weights, axis=0, keepdims=True)
         norms[norms == 0] = 1  # Avoid division by zero
         self.weights /= norms
-        # print(self.weights)
-        print(self.weights.shape)
 
     def predict(self, input_pixels_vector):
         output = np.dot(input_pixels_vector, self.weights)
-        # print(output.shape)
         return np.maximum(output, 0)  # Apply ReLU to output
 
 
@@ -162,43 +162,6 @@ letters_4_pixels[pixel_columns] = letters_4_pixels[pixel_columns] / 255.0
 letters_7_pixels[pixel_columns] = letters_7_pixels[pixel_columns] / 255.0
 letters_13_pixels[pixel_columns] = letters_13_pixels[pixel_columns] / 255.0
 letters_32_pixels[pixel_columns] = letters_32_pixels[pixel_columns] / 255.0
-
-output_vectors_train_4 = np.array([categorize_letter(letter) for letter in y_train_4])
-output_vectors_train_7 = np.array([categorize_letter(letter) for letter in y_train_7])
-output_vectors_train_13 = np.array([categorize_letter(letter) for letter in y_train_13])
-output_vectors_train_32 = np.array([categorize_letter(letter) for letter in y_train_32])
-
-# Initialize and train the network for each variation
-network_4 = HebbianNetwork(input_size=len(pixel_columns), output_size=3, learning_rate=0.1)
-network_4.train(X_train_4, output_vectors_train_4)
-
-network_7 = HebbianNetwork(input_size=len(pixel_columns), output_size=3, learning_rate=0.1)
-network_7.train(X_train_7, output_vectors_train_7)
-
-network_13 = HebbianNetwork(input_size=len(pixel_columns), output_size=3, learning_rate=0.1)
-network_13.train(X_train_13, output_vectors_train_13)
-
-network_32 = HebbianNetwork(input_size=len(pixel_columns), output_size=3, learning_rate=0.1)
-network_32.train(X_train_32, output_vectors_train_32)
-
-# Evaluate for each variation
-print("3 categories")
-
-print("4 Pixels Variation - 5% noise")
-print(f"Accuracy on training data: {evaluate_network_3(X_train_4, y_train_4, network_4):.2f}%")
-print(f"Accuracy on testing data: {evaluate_network_3(X_test_4, y_test_4, network_4):.2f}%")
-
-print("\n7 Pixels Variation - 10% noise")
-print(f"Accuracy on training data: {evaluate_network_3(X_train_7, y_train_7, network_7):.2f}%")
-print(f"Accuracy on testing data: {evaluate_network_3(X_test_7, y_test_7, network_7):.2f}%")
-
-print("\n13 Pixels Variation - 20% noise")
-print(f"Accuracy on training data: {evaluate_network_3(X_train_13, y_train_13, network_13):.2f}%")
-print(f"Accuracy on testing data: {evaluate_network_3(X_test_13, y_test_13, network_13):.2f}%")
-
-print("\n32 Pixels Variation - 50% noise")
-print(f"Accuracy on training data: {evaluate_network_3(X_train_32, y_train_32, network_32):.2f}%")
-print(f"Accuracy on testing data: {evaluate_network_3(X_test_32, y_test_32, network_32):.2f}%")
 
 
 output_vectors_train_4 = np.array([letter_to_one_hot(letter) for letter in y_train_4])
